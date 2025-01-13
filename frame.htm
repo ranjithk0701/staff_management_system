@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 15px;
+        }
+        .section {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 10px;
+            width: 100%;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .section h2 {
+            margin-top: 0;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 500px;
+            width: 100%;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        .approve-btn, .reject-btn {
+            padding: 8px 16px;
+            margin: 4px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        @media screen and (max-width: 768px) {
+            .section {
+                padding: 10px;
+            }
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            td, th {
+                padding: 8px;
+                font-size: 14px;
+            }
+            input, select, button {
+                font-size: 14px;
+            }
+        }
+        @media screen and (max-width: 480px) {
+            td, th {
+                padding: 6px;
+                font-size: 12px;
+            }
+            input, select, button {
+                font-size: 12px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+       emailjs.init("A8bRTqDap2xiZltpj"); // Add your EmailJS user ID
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- User Authentication -->
+        <div class="section" id="user-authentication">
+            <h2>User Authentication</h2>
+            <p>Secure login with role-based access (admin, HOD, staff).</p>
+            <form id="login-form">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <br>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <br>
+                <button type="submit">Login</button>
+            </form>
+            <div id="login-message"></div>
+        </div>
+
+        <!-- Leave Management -->
+        <div class="section hidden" id="leave-management">
+            <h2>Leave Management</h2>
+            <button id="clear-leave-history">Clear Leave History</button>
+            <p>Submit, approve, and track leave requests for staff and students.</p>
+            <form id="leave-form">
+                <label for="leave-sender-email">From:</label>
+                <input type="email" id="leave-sender-email" name="leave-sender-email" required>
+                <br>
+                <label for="leave-receiver-email">To:</label>
+                <select id="leave-receiver-email" name="leave-receiver-email" required>
+                    <option value="missionmoneyheist700@gmail.com">HOD sir (missionmoneyheist700@gmail.com)</option>
+                </select>
+                <br>
+                <label for="leave-reason">Reason:</label>
+                <input type="text" id="leave-reason" name="leave-reason" required>
+                <br>
+                <label for="leave-date">Date:</label>
+                <input type="date" id="leave-date" name="leave-date" required>
+                <br>
+                <label for="leave-time">Time:</label>
+                <input type="time" id="leave-time" name="leave-time" required>
+                <br>
+                <button type="submit">Submit Leave Request</button>
+            </form>
+            <div id="leave-message"></div>
+            <h3>Leave Requests</h3>
+            <form id="hod-approval-form" class="hidden">
+                <label for="hod-secret-code">HOD Secret Code:</label>
+                <input type="password" id="hod-secret-code" name="hod-secret-code" required>
+                <button type="submit">Submit</button>
+            </form>
+            <table id="leave-requests-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Reason</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th class="approval-column hidden">Approve</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Leave requests will be appended here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Class Scheduling -->
+        <div class="section hidden" id="class-scheduling">
+            <h2>Class Scheduling</h2>
+            <button id="clear-class-history">Clear Class History</button>
+            <p>Detect unengaged classes and assign substitute teachers automatically.</p>
+            <form id="class-form">
+                <label for="class-name">Class Name:</label>
+                <input type="text" id="class-name" name="class-name" required>
+                <br>
+                <label for="teacher-name">Teacher Name:</label>
+                <input type="text" id="teacher-name" name="teacher-name" required>
+                <br>
+                <button type="submit">Schedule Class</button>
+            </form>
+            <div id="class-message"></div>
+            <h3>Scheduled Classes</h3>
+            <table id="class-schedule-table">
+                <thead>
+                    <tr>
+                        <th>Class Name</th>
+                        <th>Teacher Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Scheduled classes will be appended here -->
+                </tbody>
+            </table>
+        </div>
+    <!-- Add this section after the "Student Leave Requests" section -->
+    <div class="section hidden" id="free-staff">
+        <h2>Free Staff</h2>
+        <p>Check which staff members are free at a given time.</p>
+        <form id="free-staff-form">
+            <label for="free-date">Date:</label>
+            <input type="date" id="free-date" name="free-date" required>
+            <br>
+            <label for="free-time">Time:</label>
+            <input type="time" id="free-time" name="free-time" required>
+            <br>
+            <button type="submit">Check Free Staff</button>
+        </form>
+        <div id="free-staff-message"></div>
+        <table id="free-staff-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Free staff members will be appended here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section hidden" id="update-availability">
+        <h2>Update Staff Availability</h2>
+        <form id="update-availability-form">
+            <label for="staff-id">Staff ID:</label>
+            <input type="text" id="staff-id" name="staff-id" required>
+            <br>
+            <label for="staff-name">Staff Name:</label>
+            <input type="text" id="staff-name" name="staff-name" required>
+            <br>
+            <label for="new-availability-date">New Available Date:</label>
+            <input type="date" id="new-availability-date" name="new-availability-date" required>
+            <br>
+            <label for="new-availability-time">New Available Time:</label>
+            <input type="time" id="new-availability-time" name="new-availability-time" required>
+            <br>
+            <button type="submit">Update Availability</button>
+        </form>
+        <div id="update-availability-message"></div>
+    </div>
+
+    <script>
+        // Add after the leaveRequests array declaration
+    const users = [
+        { id: '5', email: 'admin@gmail.com', password: 'admin123', role: 'admin', name: 'Admin User', department: 'Administration' },
+        { id: '1', email: 'missionmoneyheist700@gmail.com', password: 'hod123', role: 'HOD', name: 'HOD sir', department: 'Management' },
+        { id: '2', email: 'kiran@gmail.com', password: 'kiran123', role: 'staff', name: 'kiran sir', department: 'CSE' },
+        { id: '3', email: 'srinivas@gmail.com', password: 'srinivas123', role: 'staff', name: 'srinivas sir', department: 'CSE' },
+        { id: '4', email: 'hayath@gmail.com', password: 'hayath123', role: 'staff', name: 'hayath sir', department: 'CSE' }
+    ];
+
+        const staffAvailability = JSON.parse(localStorage.getItem('staffAvailability')) || [];
+        function saveStaffAvailability() {
+            localStorage.setItem('staffAvailability', JSON.stringify(staffAvailability));
+        }
+
+        const leaveRequests = JSON.parse(localStorage.getItem('leaveRequests')) || [];
+        const hodSecretCode = 'hodsecret';
+        let isHodVerified = false;
+        function saveLeaveRequests() {
+            localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
+        }
+
+        const scheduledClasses = JSON.parse(localStorage.getItem('scheduledClasses')) || [];
+        function saveScheduledClasses() {
+            localStorage.setItem('scheduledClasses', JSON.stringify(scheduledClasses));
+        }
+
+        function updateClassScheduleTable() {
+            const tableBody = document.getElementById('class-schedule-table').querySelector('tbody');
+            tableBody.innerHTML = '';
+            scheduledClasses.forEach((scheduledClass) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${scheduledClass.className}</td>
+                    <td>${scheduledClass.teacherName}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        document.getElementById('class-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const className = document.getElementById('class-name').value;
+            const teacherName = document.getElementById('teacher-name').value;
+            const scheduledClass = { className, teacherName };
+            scheduledClasses.push(scheduledClass);
+            saveScheduledClasses();
+            document.getElementById('class-message').innerText = `Class ${className} scheduled with teacher ${teacherName}`;
+            updateClassScheduleTable();
+        });
+        document.getElementById('clear-leave-history').addEventListener('click', function() {
+            localStorage.removeItem('leaveRequests');
+            leaveRequests.length = 0; // Clear the array
+            updateLeaveRequestsTable();
+            document.getElementById('leave-message').innerText = 'Leave history cleared.';
+        });
+
+        document.getElementById('clear-class-history').addEventListener('click', function() {
+            localStorage.removeItem('scheduledClasses');
+            scheduledClasses.length = 0; // Clear the array
+            updateClassScheduleTable();
+            document.getElementById('class-message').innerText = 'Class history cleared.';
+        });
+        document.getElementById('class-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const className = document.getElementById('class-name').value;
+            const teacherName = document.getElementById('teacher-name').value;
+            const scheduledClass = { className, teacherName };
+            scheduledClasses.push(scheduledClass);
+            saveScheduledClasses();
+            document.getElementById('class-message').innerText = `Class ${className} scheduled with teacher ${teacherName}`;
+            updateClassScheduleTable();
+        });
+
+        // Initial call to update the table on page load
+        updateClassScheduleTable();
+
+        // Replace the existing updateLeaveRequestsTable function
+        function updateLeaveRequestsTable() {
+            console.log('Updating table, current requests:', leaveRequests);
+            const tableBody = document.getElementById('leave-requests-table').querySelector('tbody');
+            tableBody.innerHTML = '';
+            leaveRequests.forEach((request, index) => {
+                const status = request.status || (request.approved ? 'Approved' : 'Pending');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>From: ${request.senderEmail}<br>To: ${request.receiverEmail}</td>
+                    <td>${request.reason}</td>
+                    <td>${request.date}</td>
+                    <td>${request.time}</td>
+                    ${isHodVerified ? 
+                        `<td>
+                            <button onclick="window.approveLeave(${index})" 
+                                    class="approve-btn" 
+                                    ${status !== 'Pending' ? 'disabled' : ''}>
+                                Approve
+                            </button>
+                            <button onclick="window.rejectLeave(${index})" 
+                                    class="reject-btn" 
+                                    ${status !== 'Pending' ? 'disabled' : ''}>
+                                Reject
+                            </button>
+                        </td>` 
+                        : '<td></td>'}
+                    <td class="status-${status.toLowerCase()}">${status}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        // Update CSS
+        const style = document.createElement('style');
+            style.textContent = `
+                .status-approved { color: green; font-weight: bold; }
+                .status-rejected { color: red; font-weight: bold; }
+                .status-pending { color: orange; }
+                .approve-btn { background-color: #4CAF50; color: white; margin: 2px; }
+                .reject-btn { background-color: #f44336; color: white; margin: 2px; }
+            `;
+            document.head.appendChild(style);
+        window.approveLeave = approveLeave;
+        window.rejectLeave = rejectLeave;
+
+        function approveLeave(index) {
+            console.log('Approving request at index:', index);
+            if (leaveRequests[index]) {
+                leaveRequests[index].status = 'Approved';
+                leaveRequests[index].approved = true;
+                saveLeaveRequests();
+                console.log('Request approved:', leaveRequests[index]);
+                updateLeaveRequestsTable();
+            }
+        }
+
+        function rejectLeave(index) {
+            console.log('Rejecting request at index:', index);
+            if (leaveRequests[index]) {
+                leaveRequests[index].status = 'Rejected';
+                leaveRequests[index].approved = false;
+                saveLeaveRequests();
+                console.log('Request rejected:', leaveRequests[index]);
+                updateLeaveRequestsTable();
+            }
+        }
+        
+
+        // Replace the existing hod-approval-form event listener
+        document.getElementById('hod-approval-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const secretCode = document.getElementById('hod-secret-code').value;
+            if (secretCode === hodSecretCode) {
+                isHodVerified = true;
+                document.getElementById('leave-message').innerText = 'HOD access granted. You can now approve leave requests.';
+                updateLeaveRequestsTable();
+            } else {
+                document.getElementById('leave-message').innerText = 'Invalid HOD secret code';
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const user = users.find(user => user.email === email && user.password === password);
+
+            if (user) {
+                document.getElementById('login-message').innerText = `Welcome, ${user.role}!`;
+                // Show all sections after successful login
+                document.querySelectorAll('.hidden').forEach(section => section.classList.remove('hidden'));
+                document.getElementById('user-authentication').classList.add('hidden');
+
+                // Show HOD approval form if the user is HOD
+                if (user.role === 'HOD') {
+                    document.getElementById('hod-approval-form').classList.remove('hidden');
+                }
+
+                // Update leave requests table to show status
+                updateLeaveRequestsTable();
+                updateClassScheduleTable();
+            } else {
+                document.getElementById('login-message').innerText = 'Invalid email or password';
+            }
+        });
+
+        
+
+        
+
+        document.getElementById('class-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const className = document.getElementById('class-name').value;
+            const teacherName = document.getElementById('teacher-name').value;
+            // Here you would typically handle class scheduling logic
+            document.getElementById('class-message').innerText = `Class ${className} scheduled with teacher ${teacherName}`;
+        });
+
+        document.getElementById('free-staff-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const date = document.getElementById('free-date').value;
+            const time = document.getElementById('free-time').value;
+
+            const freeStaff = users.filter(user => 
+                user.role === 'staff' && 
+                !leaveRequests.some(request => 
+                    request.email === user.email && 
+                    request.date === date && 
+                    request.time === time
+                ) &&
+                staffAvailability.some(availability =>
+                    availability.staffId === user.id &&
+                    availability.date === date &&
+                    availability.time === time
+                )
+            );
+
+            const tableBody = document.getElementById('free-staff-table').querySelector('tbody');
+            tableBody.innerHTML = '';
+            freeStaff.forEach(staff => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${staff.name}</td>
+                    <td>${staff.email}</td>
+                    <td>${staff.department}</td>
+                    <td>Available</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        });
+        document.getElementById('update-availability-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const staffId = document.getElementById('staff-id').value;
+            const staffName = document.getElementById('staff-name').value;
+            const newDate = document.getElementById('new-availability-date').value;
+            const newTime = document.getElementById('new-availability-time').value;
+            const user = users.find(user => user.id === staffId && user.name === staffName);
+
+            if (user) {
+                // Remove any existing leave requests for the new date and time
+                leaveRequests = leaveRequests.filter(request => !(request.email === user.email && request.date === newDate && request.time === newTime));
+                saveLeaveRequests();
+
+                // Remove any existing scheduled classes for the new date and time
+                scheduledClasses = scheduledClasses.filter(scheduledClass => !(scheduledClass.teacherName === user.name && scheduledClass.date === newDate && scheduledClass.time === newTime));
+                saveScheduledClasses();
+
+                document.getElementById('update-availability-message').innerText = `Availability updated for ${user.name} to ${newDate} at ${newTime}`;
+            } else {
+                document.getElementById('update-availability-message').innerText = 'User not found';
+            }
+        });
+        document.getElementById('update-availability-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const staffId = document.getElementById('staff-id').value;
+            const staffName = document.getElementById('staff-name').value;
+            const newDate = document.getElementById('new-availability-date').value;
+            const newTime = document.getElementById('new-availability-time').value;
+            
+            const availability = {
+                staffId,
+                staffName,
+                date: newDate,
+                time: newTime
+            };
+            
+            // Remove old availability for this staff
+            const index = staffAvailability.findIndex(a => a.staffId === staffId);
+            if (index > -1) {
+                staffAvailability.splice(index, 1);
+            }
+            
+            staffAvailability.push(availability);
+            saveStaffAvailability();
+            
+            document.getElementById('update-availability-message').innerText = 
+                `Availability updated for ${staffName} to ${newDate} at ${newTime}`;
+        });
+        document.getElementById('leave-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const senderEmail = document.getElementById('leave-sender-email').value;
+            const receiverEmail = 'missionmoneyheist700@gmail.com'; // HOD's email address
+            const reason = document.getElementById('leave-reason').value;
+            const date = document.getElementById('leave-date').value;
+            const time = document.getElementById('leave-time').value;
+           // Send actual email using EmailJS
+            emailjs.send(
+                "service_nopqic4", // Replace with your EmailJS service ID
+                "template_ew9dt4z", // Replace with your EmailJS template ID
+                {
+                    to_email: receiverEmail,
+                    from_email: senderEmail,
+                    subject: "Leave Request",
+                    message: `
+                        Leave Request Details:
+                        From: ${senderEmail}
+                        Reason: ${reason}
+                        Date: ${date}
+                        Time: ${time}
+                    `
+                }
+            ).then(
+                function(response) {
+                    console.log("SUCCESS", response);
+                    document.getElementById('leave-message').innerText = 
+                        `Email sent successfully to ${receiverEmail}! Check your inbox.`;
+                },
+                function(error) {
+                    console.log("FAILED", error);
+                    document.getElementById('leave-message').innerText = 
+                        "Failed to send email. Please try again.";
+                }
+            );
+
+            // Save to local storage
+            const leaveRequest = {
+                senderEmail, 
+                receiverEmail, 
+                reason, 
+                date, 
+                time, 
+                status: 'Pending',  // Initialize with Pending status
+                approved: false
+            };
+            leaveRequests.push(leaveRequest);
+            saveLeaveRequests();
+            console.log('New leave request added:', leaveRequest);
+            updateLeaveRequestsTable();
+        });
+
+// Update table display
+   function updateLeaveRequestsTable() {
+    const tableBody = document.getElementById('leave-requests-table').querySelector('tbody');
+    tableBody.innerHTML = '';
+    console.log('Updating table with requests:', leaveRequests);
+    
+    leaveRequests.forEach((request, index) => {
+        const status = request.status || (request.approved ? 'Approved' : 'Pending');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>From: ${request.senderEmail}<br>To: ${request.receiverEmail}</td>
+            <td>${request.reason}</td>
+            <td>${request.date}</td>
+            <td>${request.time}</td>
+            ${isHodVerified ? 
+                `<td>
+                    <button onclick="approveLeave(${index})" class="approve-btn" ${status !== 'Pending' ? 'disabled' : ''}>
+                        Approve
+                    </button>
+                    <button onclick="rejectLeave(${index})" class="reject-btn" ${status !== 'Pending' ? 'disabled' : ''}>
+                        Reject
+                    </button>
+                </td>` 
+                : '<td></td>'}
+            <td class="status-${status.toLowerCase()}">${status}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+    </script>
+</body>
+</html>
