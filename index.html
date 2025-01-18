@@ -216,7 +216,7 @@
 
     <script>
         // Add after the leaveRequests array declaration
-        const users = [
+    const users = [
         { id: '1', email: 'admin@gmail.com', password: 'admin123', role: 'admin', name: 'Admin User', department: 'Administration' },
         { id: '2', email: 'hod@gmail.com', password: 'hod123', role: 'HOD', name: 'HOD', department: 'Management' },
         { id: '3', email: 'principle@gmail.com', password: 'kiran123', role: 'staff', name: 'principle', department: 'CSE' },
@@ -227,20 +227,33 @@
 
         const staffAvailability = JSON.parse(localStorage.getItem('staffAvailability')) || [];
         function saveStaffAvailability() {
-            localStorage.setItem('staffAvailability', JSON.stringify(staffAvailability));
-        }
+    localStorage.setItem('staffAvailability', JSON.stringify(staffAvailability));
+    window.dispatchEvent(new StorageEvent('storage', {
+        key: 'staffAvailability',
+        newValue: JSON.stringify(staffAvailability)
+    }));
+}
 
         const leaveRequests = JSON.parse(localStorage.getItem('leaveRequests')) || [];
         const hodSecretCode = 'hodsecret';
         let isHodVerified = false;
         function saveLeaveRequests() {
-            localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
-        }
+    localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
+    // Dispatch storage event for other tabs
+    window.dispatchEvent(new StorageEvent('storage', {
+        key: 'leaveRequests',
+        newValue: JSON.stringify(leaveRequests)
+    }));
+}
 
         const scheduledClasses = JSON.parse(localStorage.getItem('scheduledClasses')) || [];
         function saveScheduledClasses() {
-            localStorage.setItem('scheduledClasses', JSON.stringify(scheduledClasses));
-        }
+    localStorage.setItem('scheduledClasses', JSON.stringify(scheduledClasses));
+    window.dispatchEvent(new StorageEvent('storage', {
+        key: 'scheduledClasses',
+        newValue: JSON.stringify(scheduledClasses)
+    }));
+}
 
         function updateClassScheduleTable() {
             const tableBody = document.getElementById('class-schedule-table').querySelector('tbody');
@@ -629,6 +642,26 @@ document.getElementById('free-staff-form').addEventListener('submit', function(e
         time: newTime,
         isAvailable: true
     };
+    window.addEventListener('storage', function(e) {
+    if (e.key === 'leaveRequests') {
+        // Update leave requests from storage
+        leaveRequests = JSON.parse(e.newValue) || [];
+        updateLeaveRequestsTable();
+    }
+    if (e.key === 'staffAvailability') {
+        // Update staff availability from storage
+        staffAvailability = JSON.parse(e.newValue) || [];
+        const currentDate = document.getElementById('free-date')?.value;
+        if (currentDate) {
+            updateFreeStaffTable(currentDate);
+        }
+    }
+    if (e.key === 'scheduledClasses') {
+        // Update scheduled classes from storage
+        scheduledClasses = JSON.parse(e.newValue) || [];
+        updateClassScheduleTable();
+    }
+});
     
     // Update availability
     const index = staffAvailability.findIndex(a => a.staffId === staffId);
