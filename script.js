@@ -254,11 +254,6 @@ const users = [
             document.querySelectorAll('.hidden').forEach(section => section.classList.remove('hidden'));
             document.getElementById('user-authentication').classList.add('hidden');
 
-            // Show HOD approval form if the user is HOD
-            if (user.role === 'HOD') {
-                document.getElementById('hod-approval-form').classList.remove('hidden');
-            }
-
             // Update leave requests table to show status
             // updateLeaveRequestsTable();
             // updateClassScheduleTable();
