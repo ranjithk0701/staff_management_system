@@ -1,0 +1,9 @@
+name = "leave-management-api"
+main = "src/index.ts" 
+compatibility_date = "2025-01-18"
+
+
+[[d1_databases]]
+binding = "DB"
+database_name = "leave-management"
+database_id = "82d7e504-bf60-417b-84b2-34a7b5ee46ee"
