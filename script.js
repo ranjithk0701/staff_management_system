@@ -4,9 +4,7 @@ const users = [
     { id: '1', email: 'admin@gmail.com', password: 'admin123', role: 'admin', name: 'Admin User', department: 'Administration' },
     { id: '2', email: 'hod@gmail.com', password: 'hod123', role: 'HOD', name: 'HOD', department: 'Management' },
     { id: '3', email: 'principle@gmail.com', password: 'kiran123', role: 'staff', name: 'principle', department: 'CSE' },
-    { id: '4', email: 'staff@gamil.com', password: 'staff123', role: 'staff', name: 'srinivas sir', department: 'CSE' },
-    { id: '5', email: 'staff@gamil.com', password: 'staff123', role: 'staff', name: 'kiran sir', department: 'CSE' },
-    { id: '6', email: 'staff@gamil.com', password: 'staff123', role: 'staff', name: 'Phaniram sir', department: 'CSE' }
+    { id: '4', email: 'staff@gmail.com', password: 'staff123', role: 'staff', name: 'srinivas sir', department: 'CSE' }
 ];
 
 //     const staffAvailability = JSON.parse(localStorage.getItem('staffAvailability')) || [];
